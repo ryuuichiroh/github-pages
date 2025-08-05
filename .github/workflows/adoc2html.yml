@@ -18,10 +18,22 @@ jobs:
 
       - name: Convert Asciidoc to HTML
         run: |
-          for file in docs/**/*.adoc; do
-            filename=$(basename "$file" .adoc)
-            asciidoctor -o "docs/${filename}.html" "$file"
-          done
+          # adocファイルが存在する場合のみ変換を実行
+          if ls docs/**/*.adoc 1> /dev/null 2>&1; then
+            for file in docs/**/*.adoc; do
+              # ディレクトリ構造を保持したまま .adoc を .html に変更
+              htmlfile="${file%.adoc}.html"
+              echo "Converting $file to $htmlfile"
+              asciidoctor -o "$htmlfile" "$file"
+            done
+          else
+            echo "No .adoc files found to convert"
+          fi
+
+      - name: List files to be deployed
+        run: |
+          echo "Files that will be deployed to GitHub Pages:"
+          find docs -type f | sort
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3.0.1
@@ -34,6 +46,10 @@ jobs:
     permissions:
       pages: write
       id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
