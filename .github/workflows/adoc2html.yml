@@ -3,7 +3,7 @@ name: Convert Asciidoc to HTML and Deploy
 on:
   push:
     branches: [main]
-    paths: ["docs/**/*.adoc"]
+    paths: ["docs/**/*"]
   workflow_dispatch:
 
 jobs:
