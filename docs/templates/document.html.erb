@@ -64,7 +64,36 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
-    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    mermaid.initialize({ startOnLoad: false, theme: 'default' });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // [mermaid] ブロックを探して変換
+      const mermaidBlocks = document.querySelectorAll('.listingblock .content');
+      
+      mermaidBlocks.forEach((block, index) => {
+        const pre = block.querySelector('pre');
+        if (pre && pre.textContent.trim().startsWith('flowchart') || 
+            pre && pre.textContent.trim().startsWith('graph') ||
+            pre && pre.textContent.trim().startsWith('sequenceDiagram') ||
+            pre && pre.textContent.trim().startsWith('classDiagram') ||
+            pre && pre.textContent.trim().startsWith('stateDiagram') ||
+            pre && pre.textContent.trim().startsWith('journey') ||
+            pre && pre.textContent.trim().startsWith('gantt') ||
+            pre && pre.textContent.trim().startsWith('pie')) {
+          
+          const mermaidCode = pre.textContent;
+          const mermaidDiv = document.createElement('div');
+          mermaidDiv.className = 'mermaid';
+          mermaidDiv.id = `mermaid-${index}`;
+          mermaidDiv.textContent = mermaidCode;
+          
+          block.parentNode.replaceChild(mermaidDiv, block);
+        }
+      });
+      
+      // Mermaidを初期化
+      mermaid.init();
+    });
   </script>
 </head>
 <body>

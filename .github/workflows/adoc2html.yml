@@ -17,7 +17,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y asciidoctor ruby-dev
-          sudo gem install asciidoctor-diagram tilt
+          sudo gem install tilt
 
       - name: Convert Asciidoc to HTML
         run: |
@@ -27,10 +27,7 @@ jobs:
               # ディレクトリ構造を保持したまま .adoc を .html に変更
               htmlfile="${file%.adoc}.html"
               echo "Converting $file to $htmlfile"
-              asciidoctor -r asciidoctor-diagram \
-                -a mermaid-format=svg \
-                -a allow-uri-read \
-                -T docs/templates \
+              asciidoctor -T docs/templates \
                 -o "$htmlfile" "$file"
             done
           else
