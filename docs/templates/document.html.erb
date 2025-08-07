@@ -64,35 +64,58 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
-    mermaid.initialize({ startOnLoad: false, theme: 'default' });
-    
     document.addEventListener('DOMContentLoaded', function() {
-      // [mermaid] ブロックを探して変換
-      const mermaidBlocks = document.querySelectorAll('.listingblock .content');
-      
-      mermaidBlocks.forEach((block, index) => {
-        const pre = block.querySelector('pre');
-        if (pre && pre.textContent.trim().startsWith('flowchart') || 
-            pre && pre.textContent.trim().startsWith('graph') ||
-            pre && pre.textContent.trim().startsWith('sequenceDiagram') ||
-            pre && pre.textContent.trim().startsWith('classDiagram') ||
-            pre && pre.textContent.trim().startsWith('stateDiagram') ||
-            pre && pre.textContent.trim().startsWith('journey') ||
-            pre && pre.textContent.trim().startsWith('gantt') ||
-            pre && pre.textContent.trim().startsWith('pie')) {
-          
-          const mermaidCode = pre.textContent;
-          const mermaidDiv = document.createElement('div');
-          mermaidDiv.className = 'mermaid';
-          mermaidDiv.id = `mermaid-${index}`;
-          mermaidDiv.textContent = mermaidCode;
-          
-          block.parentNode.replaceChild(mermaidDiv, block);
-        }
-      });
+      console.log('DOM loaded, searching for Mermaid blocks...');
       
       // Mermaidを初期化
-      mermaid.init();
+      mermaid.initialize({ 
+        startOnLoad: false, 
+        theme: 'default',
+        securityLevel: 'loose'
+      });
+      
+      // [mermaid] ブロックを探して変換
+      const mermaidBlocks = document.querySelectorAll('.listingblock .content');
+      console.log('Found blocks:', mermaidBlocks.length);
+      
+      let mermaidIndex = 0;
+      mermaidBlocks.forEach((block, index) => {
+        const pre = block.querySelector('pre');
+        if (pre) {
+          const content = pre.textContent.trim();
+          console.log('Block ' + index + ' content:', content.substring(0, 50) + '...');
+          
+          if (content.startsWith('flowchart') || 
+              content.startsWith('graph') ||
+              content.startsWith('sequenceDiagram') ||
+              content.startsWith('classDiagram') ||
+              content.startsWith('stateDiagram') ||
+              content.startsWith('journey') ||
+              content.startsWith('gantt') ||
+              content.startsWith('pie')) {
+            
+            console.log('Converting Mermaid block:', index);
+            const mermaidCode = pre.textContent.trim();
+            const mermaidDiv = document.createElement('div');
+            mermaidDiv.className = 'mermaid';
+            mermaidDiv.id = `mermaid-diagram-${mermaidIndex}`;
+            
+            // Mermaidを直接レンダリング
+            mermaid.render(`diagram-${mermaidIndex}`, mermaidCode)
+              .then(result => {
+                mermaidDiv.innerHTML = result.svg;
+                block.parentNode.replaceChild(mermaidDiv, block);
+              })
+              .catch(error => {
+                console.error('Mermaid rendering error:', error);
+                mermaidDiv.innerHTML = '<p style="color: red;">Mermaid diagram rendering failed</p>';
+                block.parentNode.replaceChild(mermaidDiv, block);
+              });
+            
+            mermaidIndex++;
+          }
+        }
+      });
     });
   </script>
 </head>
