@@ -13,8 +13,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Asciidoctor
-        run: sudo apt-get update && sudo apt-get install -y asciidoctor
+      - name: Install Asciidoctor and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y asciidoctor ruby-dev
+          sudo gem install asciidoctor-diagram
 
       - name: Convert Asciidoc to HTML
         run: |
@@ -24,7 +27,11 @@ jobs:
               # ディレクトリ構造を保持したまま .adoc を .html に変更
               htmlfile="${file%.adoc}.html"
               echo "Converting $file to $htmlfile"
-              asciidoctor -o "$htmlfile" "$file"
+              asciidoctor -r asciidoctor-diagram \
+                -a mermaid-format=svg \
+                -a allow-uri-read \
+                -T docs/templates \
+                -o "$htmlfile" "$file"
             done
           else
             echo "No .adoc files found to convert"
