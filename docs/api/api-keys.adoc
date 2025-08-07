@@ -73,13 +73,7 @@ Web API のヘッダに設定することで、リソースデータの参照や
 
 WDTO のリソースデータを利用できるようになるためのフローは以下のようになります。
 
-ifdef::env-github[]
-[source,mermaid]
-endif::[]
-
-ifndef::env-github[]
 [mermaid]
-endif::[]
 ....
 flowchart TD
     A["【WDTO 管理者】<br/>サービス登録<br/>(POST /sp/services)"] --> B["【WDTO 管理者】<br/>API キー発行用 API キー発行<br/>(POST /api-keys)"]
