@@ -17,7 +17,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y asciidoctor ruby-dev
-          sudo gem install asciidoctor-diagram
+          sudo gem install asciidoctor-diagram tilt
 
       - name: Convert Asciidoc to HTML
         run: |
