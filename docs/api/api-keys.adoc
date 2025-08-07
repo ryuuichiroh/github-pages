@@ -1,0 +1,604 @@
+= API キーの仕様
+:sectnums:
+
+== はじめに
+
+この文書では API キーの仕様を定義しています。
+
+API キーは、特定のユーザーやソフトウェアサービスに対して API へのアクセスを制御するための認証情報です。
+API キーを使用することで、リクエストが正当なものであることを確認し、不正アクセスを防止します。
+
+WDTO は、API を介してユーザやサービスにロケーションやデバイスなどのリソースデータを提供します。
+これらのリソースデータはカスタマごとの情報であるため、API を利用するユーザやサービスに応じて参照や更新可能なリソースを制限する必要があります。
+そのため、API キーには、以下のように API キーを持つオーナ情報とアクセスが許可されるリソース情報をポリシとして紐づけます。
+
+....
+{
+  "policies": {
+    "effect": "Allow",
+    "actions": ["List"],
+    "ownerId": "575e4f6a-22e8-4763-b352-f60006735c3d",
+    "resources": [{
+        "customerId": "575e4f6a-22e8-4763-b352-f60006735c3d",
+        "resourceType": "device"
+    }]
+  }
+}
+....
+
+サービスやカスタマ (API キーのオーナ) が WDTO のリソースデータにアクセスするには、以下のように API キーを Web API のリクエストヘッダに設定します。
+このようにすることで、そのオーナに許可されたリソースデータのみを利用できるようになります。
+
+....
+GET /devices
+wdto-api-key: f75646d2-d74b-4fdd-8dd3-8fbefe985d86
+
+{
+  "totalItems": 100,
+  "page": 1,
+  "itemsPerPage": 20,
+  "totalPages": 20,
+  "devices": [
+    {
+      "id": "c76c765b-4e22-32b8-f31e-3649f5825b40",
+      "locationId": "c76c765b-4e22-32b8-f31e-3649f5825b4X",
+      "customerId": "575e4f6a-22e8-4763-b352-f60006735c3d",
+      "serialNumber": "2343FD1NKQ38",
+      "name": "Logitech vr0020",
+      "model": "Rally Bar",
+      "manufacturer": "Logitech",
+      "createdAt": "2023-10-01T12:00:00.000Z",
+      "updatedAt": "2023-10-01T12:00:00.000Z",
+    }
+  ]
+}
+....
+
+== API キーの種類
+
+API キーは、2種類に分類されます。
+
+=== データアクセス用 API キー
+
+ユーザやサービスがリソースデータにアクセスするための API キーです。
+Web API のヘッダに設定することで、リソースデータの参照や更新が可能になります。
+データアクセス用の API キーは誰でも発行できるわけではありません。「API キー発行用 API キー」が必要です。
+
+=== API キー発行用 API キー
+
+この API キーを利用することで、「データアクセス用 API キー」を発行することができます。
+この API キーは、WDTO の運用管理者 (WDTO 管理者) から、WDTO を利用するサービスの管理者 (サービス管理者) に提供されます。
+
+== API キーの発行作業
+
+WDTO のリソースデータを利用できるようになるためのフローは以下のようになります。
+
+ifdef::env-github[]
+[source,mermaid]
+endif::[]
+
+ifndef::env-github[]
+[mermaid]
+endif::[]
+....
+flowchart TD
+    A["【WDTO 管理者】<br/>サービス登録<br/>(POST /sp/services)"] --> B["【WDTO 管理者】<br/>API キー発行用 API キー発行<br/>(POST /api-keys)"]
+    B --> C["【サービス管理者】<br/>データアクセス用 API キー発行<br/>(POST /api-keys)"]
+    C --> D["【カスタマ】<br/>サブスクリプション登録<br/>(POST /subscriptions)"]
+    C --> E["【カスタマ】<br/>リソースデータ参照<br/>(GET /devices, GET /locations)"]
+    C --> F["【サービス】<br/>リソースデータ登録<br/>(POST /devices, POST /locations)"]
+....
+
+
+<<api-keys-service-registration>>と<<api-keys-issue-api-key>>は WDTO 管理者が行う作業で、
+<<api-keys-issue-data-access-key>>はサービス管理者が行う作業です。
+なお、<<api-keys-issue-data-access-key>>では、WDTO が管理するカスタマ ID が必要です。
+カスタマ ID を含むカスタマ情報は、WDTO 管理者によって事前に WDTO に登録されています。
+
+[[api-keys-wdto-admin-flow]]
+=== WDTO 管理者の作業
+
+WDTO 管理者は以下の作業をします。この作業には WDTO の管理者アカウントが必要です。
+
+. <<api-keys-service-registration>>
+. <<api-keys-issue-api-key>>
+
+[[api-keys-service-registration]]
+==== WDTO を利用する「サービス」の登録
+
+「API キー発行用 API キー」を発行するためには、WDTO を利用する「サービス」の ID が必要です。
+以下のように Web API (`POST /sp/services`) を利用することで、サービスの ID を取得できます。
+なお、Authorization ヘッダには、WDTO の管理者アカウントの Basic 認証情報を指定します。
+
+....
+POST /sp/services
+Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l
+
+{
+  "name": "サンプルサービス",
+  "description": "例として登録するサービスです",
+}
+....
+
+サービスの登録に成功すると、以下のようにサービス ID (`serviceId`) が提供されます。
+このサービス ID は API キーの発行で必要です。
+
+....
+{
+  "serviceId": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "サンプルサービス",
+  "description": "例として登録するサービスです"
+}
+....
+
+[[api-keys-issue-api-key]]
+==== 「API キー発行用 API キー」の発行
+以下のように API キー発行の API (`POST /api-keys`) を使って、API キーの発行を要求します。
+
+....
+POST /api-keys
+Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l
+
+{
+  "description":"サンプルサービスの API 発行用 API キー",
+  "ownerId":"550e8400-e29b-41d4-a716-446655440000",
+  "policies":[
+    {
+      "effect":"Allow",
+      "actions":["List"],
+      "resources":[{
+          "resourceType": "customer"
+      }]
+    },{
+      "effect":"Allow",
+      "actions":["*"],
+      "resources":[{
+          "resourceType": "api-key"
+      }
+    ]
+  }]
+}
+....
+
+Authorization ヘッダには、WDTO の管理者アカウントの Basic 認証情報を指定します。
+
+API キーのオーナー (`ownerId`) には、<<api-keys-service-registration>>で入手したサービス ID を指定します。
+
+ポリシ (`policies`) には、発行する API キーがどのリソースに対してどのような操作を許可されるかを定義します。
+ここでは、この API キーでデータアクセス用の API キーを発行するために必要なカスタマ ID を参照できるように、
+`actions` に `List` と `resourceType` に `customer` を指定しています。
+また、データアクセス用の API キーの管理 (発行、更新、削除) を行うために必要な権限を与えるために、
+`actions` に `*` と `resourceType` に `api-key` を指定しています。
+
+ただし、<<api-keys-limitations>>にあるように、現状ではカスタマ ID を提供する Web API は公開されませんので、
+以下のようなリクエストを送信することになります。
+
+....
+POST /api-keys
+Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l
+
+{
+  "description":"サンプルサービスの API 発行用 API キー",
+  "ownerId":"550e8400-e29b-41d4-a716-446655440000",
+  "policies":[{
+      "effect":"Allow",
+      "actions":["*"],
+      "resources":[{
+          "resourceType": "api-key"
+    }]
+  }]
+}
+....
+
+成功すると、以下のように API キー (`secret`) が発行されます。
+
+....
+{
+  "secret": "f75646d2-d74b-4fdd-8dd3-8fbefe985d86",
+  "description": "サンプルサービスの API 発行用 API キー",
+  "ownerId": "550e8400-e29b-41d4-a716-446655440000",
+  "policies": ...
+}
+....
+
+[[api-keys-service-admin-flow]]
+=== サービス管理者の作業
+
+[[api-keys-issue-data-access-key]]
+==== 「データアクセス用 API キー」の発行
+
+ユーザやサービスがリソースデータにアクセスするための API キーは、WDTO を利用するサービス管理者が発行します。
+この作業をするには、WDTO 管理者から提供される「API キー発行用 API キー」が必要です。
+
+「データアクセス用 API キー」を発行するためには、Web API (POST /api-keys) を利用します。
+HTTP リクエストヘッダの `wdto-api-key` には、WDTO 管理者から提供された「API キー発行用 API キー」を指定します。
+
+その他の `ownerId` や `policies` の内容は、発行する API キーの利用者がカスタマかサービスかによって異なります。
+<<api-keys-issue-data-access-customer>>や<<api-keys-issue-data-access-service>>を参照してください。
+
+[[api-keys-issue-data-access-customer]]
+===== カスタマが WDTO のリソースデータを参照する場合
+
+`POST /api-keys` を使い、以下のようなリクエストを送信します。
+
+....
+POST /api-keys
+wdto-api-key: f75646d2-d74b-4fdd-8dd3-8fbefe985d86
+
+{
+  "description": "サンプルサービスのカスタマのデータアクセス用 API キー",
+  "ownerId": "575e4f6a-22e8-4763-b352-f60006735c3d",
+  "policies": [
+    {
+      "effect": "Allow",
+      "actions": ["List"],
+      "resources": [
+        {
+          "resourceType": "location",
+          "customerId": "575e4f6a-22e8-4763-b352-f60006735c3d"
+        },
+        {
+          "resourceType": "device",
+          "customerId": "575e4f6a-22e8-4763-b352-f60006735c3d"
+        },
+      ]
+    },
+    {
+      "effect": "Allow",
+      "actions": ["*"],
+      "resources": [
+        {
+          "resourceType": "subscription",
+          "customerId": "575e4f6a-22e8-4763-b352-f60006735c3d"
+        }
+      ]
+    }
+  ]
+}
+....
+
+API キーのオーナー (`ownerId`) には、「データアクセス用 API キー」を提供するカスタマの ID を指定します。
+ただし、現在、カスタマ ID の参照する Web API を提供していませんので、
+カスタマ ID の取得方法については WDTO にお問い合わせください。
+
+発行する API キーで、location と device のリソース情報を参照できるようにするために、
+ポリシ (`policies`) の 1 つには `resourceType` には `location` と `device` を指定します。
+また、サブスクリプションの登録や更新を行うために必要な権限を与えるために、もう 1 つのポリシに `actions` に `*` と `resourceType` に `subscription` を指定しています。
+それぞれポリシ中の `customerId` には、`ownerId` と同じ ID を指定します。
+
+成功すると、以下のようにデータアクセス用の API キー (`secret`) が発行されます。
+
+....
+{
+  "customerId": "575e4f6a-22e8-4763-b352-f60006735c3d",
+  "description": "サンプルサービスのカスタマのデータアクセス用 API キー",
+  "id": "175e4f6a-12e8-1763-b352-160006735c3d",
+  "secret": "e4d993a2-7e43-4a78-8a39-37f67fa8df95",
+  "policies": ...
+}
+....
+
+[[api-keys-issue-data-access-service]]
+===== サービスが WDTO へリソースデータを作成・更新・削除する場合
+
+`POST /api-keys` を使い、以下のようなリクエストを送信します。
+
+....
+POST /api-keys
+wdto-api-key: f75646d2-d74b-4fdd-8dd3-8fbefe985d86
+
+{
+  "description": "サンプルサービスのサービスのデータアクセス用 API キー",
+  "ownerId": "575e4f6a-22e8-4763-b352-f60006735c3d",
+  "policies": [
+    {
+      "effect": "Allow",
+      "actions": ["*"],
+      "resources": [
+        {
+          "resourceType": "location",
+          "customerId": "*"
+        },
+        {
+          "resourceType": "device",
+          "customerId": "*"
+        }
+      ]
+    }
+  ]
+}
+....
+
+API キーのオーナー (`ownerId`) には、リソースデータへアクセスするサービスの ID (`serviceId`) を指定します。
+
+発行する API キーで、location と device のリソースデータを更新できるようにするために、
+ポリシ (`policies`) の `resourceType` には `location` と `device` を指定します。
+任意のカスタマのリソースデータを更新する場合、<<api-keys-issue-data-access-customer>>と異なり、`*` を指定します。
+
+== API キーの Web API 仕様
+
+=== メソッド
+
+GET、POST、PUT、DELETE の各メソッドをサポートします。
+
+=== リクエストヘッダの定義
+
+<<api-keys-issue-api-key>>と<<api-keys-issue-data-access-key>>で、設定するヘッダが異なります。
+
+[width="100%",cols="15%,85%",options="header",]
+|===
+|Name |Doc
+
+|Authorization
+|<<api-keys-issue-api-key>>をする場合に設定します。WDTO 管理者アカウントの Basic 認証情報です。
+
+|wdto-api-key
+|<<api-keys-issue-data-access-key>>をするための API キーです。WDTO 管理者から提供されます。
+|===
+
+[[api-keys-request-body]]
+=== リクエストボディの定義
+<<api-keys-issue-api-key>>と<<api-keys-issue-data-access-key>>で利用する Web API のリクエストボディの構造は共通です。
+しかし、それぞれの API キーでの設定項目は異なります。
+また、<<api-keys-issue-data-access-customer>>や<<api-keys-issue-data-access-service>>で示すように、
+API キーの `ownerId` がサービス ID かカスタマ ID かに応じて設定項目も異なります。
+
+POST の場合のリクエストボディは、required が `yes` の属性を全て設定する必要があります。
+
+PUT の場合は、更新が必要な項目のみ設定します。更新可能な属性は `updatable` が `yes` のものです。
+
+[width="100%",cols="15%,20%,10%,10%,45%",options="header",]
+|===
+|Name |Type |required |updatable |Doc
+
+|description
+|string
+|yes
+|yes
+|API キーの補足的な情報です。
+
+|ownerId
+|string
+|yes
+|no
+|API キーのオーナーの ID です。 +
+カスタマがリソースデータにアクセスするために、カスタマに API キーを提供する場合はカスタマ IDです。
+サービスがリソースデータにアクセスる場合はサービスの ID です。
+
+|policies
+|array++<++<<attribute-policies>>++>++
+|yes
+|yes
+|<<attribute-policies>> データです。
+|===
+
+[[attribute-policies]]
+==== policy
+
+[width="100%",cols="15%,20%,10%,10%,45%",options="header",]
+|===
+|Name |Type |required |updatable |Doc
+
+|effect
+|string(enum)
+|yes
+|yes
+|「許可する」か「拒否する」ポリシなのか示します。選択肢は `Allow` または `Deny` です。
+現在は、`Allow` のみをサポートしています。
+
+|actions
+|array<string(enum)>
+|yes
+|yes
+|リソースデータに対して許可または拒否する操作を示します。
+選択肢は `List`、`Create`、`Update`、`Delete` です。
+全ての操作を許可する場合は `*` です。
+
+|resources
+|array++<++<<api-keys-attribute-resources>>++>++
+|yes
+|yes
+|ポリシが適用される <<api-keys-attribute-resources>> です。
+|===
+
+[[api-keys-attribute-resources]]
+==== resource
+
+[width="100%",cols="15%,20%,10%,10%,45%",options="header",]
+|===
+|Name |Type |required |updatable |Doc
+
+|resourceType
+|string
+|yes
+|yes
+|ポリシが適用されるリソースの種類です。 +
+Authorization ヘッダに WDTO 管理者アカウントの認証情報が設定されている場合
+ (<<api-keys-issue-api-key>>をする場合) の選択肢は `api-key` のみです。`customer` はまだ指定できません。 +
+wdto-api-key ヘッダに<<api-keys-issue-data-access-key>>をする場合の選択肢は `location`、`device`、`subscription` です。
+
+|customerId
+|string
+|yes
+|yes
+|ポリシが適用されるリソースのカスタマ ID です。 +
+`ownerId` がカスタマ ID の場合は、`ownerId` と同じ ID です。
+サービス ID の場合のみ `*` を指定できます。
+|===
+
+=== レスポンスのステータスコード
+
+[width="100%",cols="10%,20%,70%",options="header",]
+|===
+|Status Code |Method |Doc
+
+|200
+|GET, PUT
+|リクエストに成功した場合に返されます。
+
+|201
+|POST
+|リクエストに成功した場合に返されます。
+
+|204
+|DELETE
+|リクエストに成功した場合に返されます。
+
+|400
+|POST, PUT
+|必要な情報がリクエストボディに設定されていない場合や、
+リクエストに設定する値の Type が string(enum) である場合に選択肢以外の値を設定した場合に返されます。
+
+|400
+|POST, PUT
+|`ownerId` がカスタマ ID である場合 (カスタマにデータアクセス用の API を発行する場合) に `ownerId` と同じ値が `customerId` に設定されていない場合に返されます。
+
+|401
+|すべて
+|Authorization または wdto-api-key ヘッダが設定されていない場合、または認証に失敗した場合に返されます。
+
+|400
+|すべて
+|WDTO 管理者アカウント以外で<<api-keys-issue-api-key>>をしようとした場合
+ (`resourceType` に `api-key` や `customer` を設定した場合)、または、
+ API キー発行用の API キー以外で<<api-keys-issue-data-access-key>>をしようとした場合
+ (resourceType に `location` や `device` や `subscription` を設定した場合) に返されます。
+
+|403
+|すべて
+|wdto-api-key ヘッダに指定された API キーのポリシで許可されていない要求を行った場合に返されます。 +
+例：`actions` に `Create` が含まれないポリシをもつ API キーで `POST /api-keys` を行った場合など。
+
+|404
+|GET, PUT, DELETE
+|対象の ID が存在しない場合に返されます。
+|===
+
+=== レスポンスボディ
+
+==== GET /api-keys/:id、PUT /api-keys/:id、DELETE /api-keys/:id の場合
+
+リクエストに成功すると、<<api-keys-request-body>>と同じ構造のレスポンスボディが返されます。
+
+==== GET /api-keys の場合
+
+リクエストに成功すると、以下のように API キーのリストが返されます。
+
+....
+{
+  "totalItems": 100,
+  "page": 1,
+  "itemsPerPage": 20,
+  "totalPages": 5,
+  "apiKeys": [
+    {
+      "customerId": "575e4f6a-22e8-4763-b352-f60006735c3d",
+      "description": "Customers' API Key",
+      "id": "175e4f6a-12e8-1763-b352-160006735c3d",
+      "policies": ...
+    },
+    ...
+  ]
+}
+....
+
+== データアクセス用 API キーによる Web API 制御
+
+以下の Web API を利用する際には、データアクセス用の API キーを設定する必要があります。
+
+* /devices
+* /locations
+* /subscriptions
+
+=== /devices、/locations 全般
+
+上記の API に対する共通の応答仕様は以下の通りです。
+
+[width="100%",cols="20%,80%",options="header",]
+|===
+|Status Code |Doc
+
+|401
+|wdto-api-key ヘッダが設定されていない場合、または認証に失敗した場合に返されます。
+
+|403
+|wdto-api-key のポリシで許可されていない要求を行った場合に返されます。 +
+例：`actions` に `Create` が含まれていないポリシの API キーで `POST /devices` を行った場合など
+|===
+
+個別の Web API の応答仕様は、本章の各セクションに示します。
+
+=== GET /devices、/locations、/subscriptions
+
+API キーの customerId に紐づくリソース情報のみを返します。
+
+なお、<<api-keys-limitations>>から、一つの API キーで複数のカスタマのリソースのリストを得ることはできません。
+そのため、これまでの応答仕様と同じです。
+
+=== GET /devices:id、/locations:id、/subscriptions:id、DELETE /devices:id、/locations:id、/subscriptions:id
+
+[width="100%",cols="20%,80%",options="header",]
+|===
+|Status Code |Doc
+
+|404
+|API キーに設定されているポリシの customerId に紐づくリソース ID が存在しない場合に返されます。
+これまでの応答仕様と同じです。
+|===
+
+=== POST /devices、/locations
+
+[width="100%",cols="20%,80%",options="header",]
+|===
+|Status Code |Doc
+
+|400
+|API キーのポリシで許可されていないカスタマ ID に対するリクエストを行った場合に返されます。
+これまでの応答仕様と同じです。
+|===
+
+[[api-keys-limitations]]
+== 現状の制約
+
+* <<api-keys-service-registration>>で利用する、サービスを登録するための Web API は提供していません。
+Service ID の登録が必要な場合は、WDTO の開発者にご連絡ください。
+
+* <<api-keys-issue-api-key>>作業では、`resourceType` に `customer` を設定できません。 + 
+将来的に `GET /customers` の Web API を提供することを想定していますが、現状では WDTO 管理者がカスタマ情報を参照するための Web API は提供されないからです。
+
+* <<api-keys-issue-api-key>>において、API キーのオーナがサービスである場合、`resourceType` に `subscription` を指定することはできません。現状、 `POST /subscriptions` はカスタマが利用する想定であり、サブスクリプション登録 (のレスポンス) にカスタマ ID が必要であるためです。
+
+* カスタマにデータアクセス用の API キーを発行する場合 (ownerId にカスタマ ID を指定する場合) に、customerId に ownerId と異なる ID を指定することはできません。
+
+* Service Bus API については、API キーの制御対象外です。理由は、<<limitation-service-bus-api>>を参照してください。
+
+[[limitation-service-bus-api]]
+=== Service Bus API を API キーの対象外とする理由
+
+WDTO が提供する Service Bus API は、任意のカスタマのリソースデータを提供するサービスから利用されます。
+この Service Bus API を使うための接続キーは、WDTO からサービスに提供され、以下のポリシが適用されています。
+
+....
+  "policies": [
+    {
+      "effect": "Allow",
+      "actions": ["Update"],
+      "resources": [
+        {
+          "resourceType": "location"
+        },
+        {
+          "resourceType": "device"
+        }
+      ]
+    }
+  ]
+....
+
+
+つまり、現状では、Service Bus の接続キーの検証が出来れば、任意のカスタマのリソースデータを更新できるサービスであると判断できるため、API キーによるポリシ確認は不要です。そのため、現在の優先度を加味し、Service Bus API は API キーの制御対象外としています。
+
+== その他の補足
+
+* API キーはハッシュ化して DB に保存されます。 +
+紛失した場合、API キーの値を取得できませんので、新しい API キーを発行する必要があります。
