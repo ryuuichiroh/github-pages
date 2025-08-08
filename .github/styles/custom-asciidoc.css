@@ -1,3 +1,6 @@
+/* Import modern fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 /* Ultra Modern AsciiDoc Design */
 :root {
   /* Color Palette - Modern Gradient Theme */
@@ -32,14 +35,25 @@ body {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   margin: 0;
-  padding: 0;
+  padding: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  box-shadow: var(--shadow-large);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Glass Container */
-.content-wrapper {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 3rem;
+/* Apply glassmorphism background to html for full effect */
+html {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+/* Glass Container - now applied directly to body */
+body {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 24px;
@@ -202,11 +216,23 @@ table {
   border-radius: 16px;
   overflow: hidden;
   background: white;
+  border: 2px solid var(--border-color);
 }
 
 th, td {
   padding: 1rem 1.5rem;
   text-align: left;
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+th:last-child,
+td:last-child {
+  border-right: none;
+}
+
+tr:last-child td {
+  border-bottom: none;
 }
 
 th {
@@ -216,6 +242,7 @@ th {
   font-size: 1rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 tr {
@@ -230,6 +257,70 @@ tr:hover {
   background: rgba(102, 126, 234, 0.1);
   transform: scale(1.01);
   box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+}
+
+/* Alternative: Simple table style for better readability */
+.tableblock table {
+  border-collapse: collapse;
+  border: 2px solid var(--primary-color);
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tableblock th,
+.tableblock td {
+  border: 1px solid var(--border-color);
+  padding: 0.8rem 1rem;
+}
+
+.tableblock th {
+  background: var(--primary-color);
+  color: white;
+  font-weight: 600;
+}
+
+.tableblock tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.tableblock tr:hover {
+  background: #e2e8f0;
+}
+
+/* Additional AsciiDoc table support */
+.tableblock .title {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.tableblock.frame-all table {
+  border: 2px solid var(--primary-color);
+}
+
+.tableblock.grid-all th,
+.tableblock.grid-all td {
+  border: 1px solid var(--border-color);
+}
+
+.tableblock.stripes-even tr:nth-child(even) {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.tableblock.stripes-odd tr:nth-child(odd) {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+/* Ensure all tables have visible borders */
+table:not(.tableblock table) {
+  border: 2px solid var(--border-color);
+}
+
+table:not(.tableblock table) th,
+table:not(.tableblock table) td {
+  border: 1px solid var(--border-color);
 }
 
 /* Beautiful Admonition Blocks */
@@ -403,8 +494,11 @@ img:hover {
 
 /* Advanced Responsive Design */
 @media (max-width: 1024px) {
-  .content-wrapper {
-    margin: 1rem;
+  html {
+    padding: 1rem;
+  }
+  
+  body {
     padding: 2rem;
     border-radius: 16px;
   }
@@ -422,12 +516,11 @@ img:hover {
 }
 
 @media (max-width: 768px) {
-  body {
-    background: var(--primary-gradient);
+  html {
+    padding: 0.5rem;
   }
   
-  .content-wrapper {
-    margin: 0.5rem;
+  body {
     padding: 1.5rem;
     border-radius: 12px;
   }
@@ -460,17 +553,20 @@ img:hover {
 
 /* Print Optimization */
 @media print {
-  body {
+  html {
     background: white;
+    padding: 0;
   }
   
-  .content-wrapper {
+  body {
     background: white;
     box-shadow: none;
     border: none;
     max-width: none;
     padding: 0;
     margin: 0;
+    border-radius: 0;
+    backdrop-filter: none;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -497,7 +593,7 @@ img:hover {
   }
 }
 
-.content-wrapper > * {
+body > * {
   animation: fadeInUp 0.6s ease-out;
 }
 

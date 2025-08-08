@@ -36,15 +36,13 @@ jobs:
             echo "No .adoc files found to convert"
           fi
 
-      - name: Add Mermaid support and Modern Design
+      - name: Add Mermaid support
         run: |
-          # HTMLファイルにMermaidサポートとモダンデザインを追加
+          # HTMLファイルにMermaidサポートを追加
           for htmlfile in docs/**/*.html; do
             if [ -f "$htmlfile" ]; then
               # Mermaidサポートを追加
               sed -i '/<\/head>/r .github/scripts/mermaid-support.html' "$htmlfile"
-              # モダンラッパーを追加
-              sed -i '/<\/head>/r .github/scripts/modern-wrapper.html' "$htmlfile"
               sed -i '/<\/head>/d' "$htmlfile"
             fi
           done
