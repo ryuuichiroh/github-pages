@@ -3,31 +3,37 @@
 document.addEventListener("DOMContentLoaded", function() {
   mermaid.initialize({startOnLoad: false, theme: "default"});
   
-  // AsciiDoc形式のコードブロック (.literalblock, .listingblock)
-  const asciidocBlocks = document.querySelectorAll(".literalblock .content, .listingblock .content");
+  console.log("Mermaid script loaded");
+  
+  // AsciiDocのMermaidブロックを検索
+  const literalBlocks = document.querySelectorAll(".literalblock");
   let index = 0;
   
-  asciidocBlocks.forEach(block => {
-    const pre = block.querySelector("pre");
-    if (pre) {
-      const content = pre.textContent.trim();
-      // Check if this is a mermaid block by content or by [source,mermaid] or [mermaid] attribute
-      const parentBlock = block.closest('.listingblock');
-      const isMermaidByTitle = parentBlock?.querySelector('.title')?.textContent.includes('mermaid');
-      const isMermaidByContent = content.startsWith("flowchart") || content.startsWith("graph") || 
-          content.startsWith("sequenceDiagram") || content.startsWith("classDiagram") || 
-          content.startsWith("stateDiagram") || content.startsWith("journey") || 
-          content.startsWith("gantt") || content.startsWith("pie");
+  literalBlocks.forEach(block => {
+    const content = block.querySelector(".content pre");
+    if (content) {
+      const text = content.textContent.trim();
+      console.log("Found literal block:", text.substring(0, 50));
       
-      if (isMermaidByContent || isMermaidByTitle) {
+      // Mermaidコードかどうかを判定
+      if (text.startsWith("flowchart") || text.startsWith("graph") || 
+          text.startsWith("sequenceDiagram") || text.startsWith("classDiagram") || 
+          text.startsWith("stateDiagram") || text.startsWith("journey") || 
+          text.startsWith("gantt") || text.startsWith("pie")) {
+        
+        console.log("Converting to Mermaid:", text.substring(0, 50));
+        
         const div = document.createElement("div");
         div.className = "mermaid";
         div.id = "mermaid-" + index;
-        mermaid.render("diagram-" + index, content).then(result => {
+        
+        mermaid.render("diagram-" + index, text).then(result => {
           div.innerHTML = result.svg;
           block.parentNode.replaceChild(div, block);
-        }).catch(() => {
-          div.innerHTML = "<p>Mermaid rendering failed</p>";
+          console.log("Mermaid rendered successfully");
+        }).catch(error => {
+          console.error("Mermaid rendering failed:", error);
+          div.innerHTML = "<p style='color: red;'>Mermaid rendering failed: " + error.message + "</p>";
           block.parentNode.replaceChild(div, block);
         });
         index++;
@@ -35,25 +41,57 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
   
-  // Markdown形式のコードブロック (```mermaid)
-  const codeBlocks = document.querySelectorAll("pre code");
-  codeBlocks.forEach(codeBlock => {
-    const content = codeBlock.textContent.trim();
-    if (content.startsWith("flowchart") || content.startsWith("graph") || 
-        content.startsWith("sequenceDiagram") || content.startsWith("classDiagram") || 
-        content.startsWith("stateDiagram") || content.startsWith("journey") || 
-        content.startsWith("gantt") || content.startsWith("pie")) {
-      const div = document.createElement("div");
-      div.className = "mermaid";
-      div.id = "mermaid-md-" + index;
-      mermaid.render("diagram-md-" + index, content).then(result => {
-        div.innerHTML = result.svg;
-        codeBlock.parentNode.parentNode.replaceChild(div, codeBlock.parentNode);
-      }).catch(() => {
-        div.innerHTML = "<p>Mermaid rendering failed</p>";
-        codeBlock.parentNode.parentNode.replaceChild(div, codeBlock.parentNode);
-      });
-      index++;
+  // Listingブロックも確認
+  const listingBlocks = document.querySelectorAll(".listingblock");
+  listingBlocks.forEach(block => {
+    const content = block.querySelector(".content pre");
+    if (content) {
+      const text = content.textContent.trim();
+      console.log("Found listing block:", text.substring(0, 50));
+      
+      // Mermaidコードかどうかを判定
+      if (text.startsWith("flowchart") || text.startsWith("graph") || 
+          text.startsWith("sequenceDiagram") || text.startsWith("classDiagram") || 
+          text.startsWith("stateDiagram") || text.startsWith("journey") || 
+          text.startsWith("gantt") || text.startsWith("pie")) {
+        
+        console.log("Converting listing to Mermaid:", text.substring(0, 50));
+        
+        const div = document.createElement("div");
+        div.className = "mermaid";
+        div.id = "mermaid-listing-" + index;
+        
+        mermaid.render("diagram-listing-" + index, text).then(result => {
+          div.innerHTML = result.svg;
+          block.parentNode.replaceChild(div, block);
+          console.log("Mermaid from listing rendered successfully");
+        }).catch(error => {
+          console.error("Mermaid from listing rendering failed:", error);
+          div.innerHTML = "<p style='color: red;'>Mermaid rendering failed: " + error.message + "</p>";
+          block.parentNode.replaceChild(div, block);
+        });
+        index++;
+      }
+    }
+  });
+  
+  // 既存のmermaidクラスの要素も処理
+  const mermaidElements = document.querySelectorAll('.mermaid');
+  mermaidElements.forEach(element => {
+    if (!element.dataset.processed) {
+      const text = element.textContent.trim();
+      if (text) {
+        console.log("Processing existing mermaid element:", text.substring(0, 50));
+        mermaid.render("existing-" + index, text).then(result => {
+          element.innerHTML = result.svg;
+          element.dataset.processed = "true";
+          console.log("Existing mermaid element processed");
+        }).catch(error => {
+          console.error("Existing mermaid processing failed:", error);
+          element.innerHTML = "<p style='color: red;'>Mermaid rendering failed: " + error.message + "</p>";
+        });
+        index++;
+      }
     }
   });
 });
