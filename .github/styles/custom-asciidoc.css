@@ -207,9 +207,9 @@ code {
   font-weight: 500;
 }
 
-/* Stunning Tables */
+/* Stunning Tables - Enhanced with Stronger Borders */
 table {
-  border-collapse: separate;
+  border-collapse: collapse !important;
   border-spacing: 0;
   width: 100%;
   margin: 2rem 0;
@@ -217,25 +217,17 @@ table {
   border-radius: 16px;
   overflow: hidden;
   background: white;
-  border: 3px solid var(--table-border-color);
+  border: 4px solid var(--primary-color) !important;
 }
 
 th, td {
   padding: 1rem 1.5rem;
   text-align: left;
-  border-right: 2px solid var(--table-border-color);
-  border-bottom: 2px solid var(--table-border-color);
+  border: 2px solid var(--table-border-color) !important;
+  position: relative;
 }
 
-th:last-child,
-td:last-child {
-  border-right: none;
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
-
+/* Ensure all internal borders are visible */
 th {
   background: var(--primary-gradient);
   color: white;
@@ -243,7 +235,7 @@ th {
   font-size: 1rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
 }
 
 tr {
@@ -260,26 +252,28 @@ tr:hover {
   box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
 }
 
-/* Alternative: Simple table style for better readability */
+/* Enhanced AsciiDoc table styles with stronger borders */
 .tableblock table {
-  border-collapse: collapse;
-  border: 3px solid var(--primary-color);
+  border-collapse: collapse !important;
+  border: 4px solid var(--primary-color) !important;
   background: white;
   border-radius: 8px;
   overflow: hidden;
+  width: 100%;
 }
 
 .tableblock th,
 .tableblock td {
-  border: 2px solid var(--table-border-color);
+  border: 2px solid var(--table-border-color) !important;
   padding: 0.8rem 1rem;
+  position: relative;
 }
 
 .tableblock th {
-  background: var(--primary-color);
-  color: white;
+  background: var(--primary-color) !important;
+  color: white !important;
   font-weight: 600;
-  border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
 }
 
 .tableblock tr:nth-child(even) {
@@ -290,7 +284,7 @@ tr:hover {
   background: #e2e8f0;
 }
 
-/* Additional AsciiDoc table support */
+/* Additional AsciiDoc table support with stronger borders */
 .tableblock .title {
   font-weight: 600;
   color: var(--primary-color);
@@ -299,12 +293,12 @@ tr:hover {
 }
 
 .tableblock.frame-all table {
-  border: 3px solid var(--primary-color);
+  border: 4px solid var(--primary-color) !important;
 }
 
 .tableblock.grid-all th,
 .tableblock.grid-all td {
-  border: 2px solid var(--table-border-color);
+  border: 2px solid var(--table-border-color) !important;
 }
 
 .tableblock.stripes-even tr:nth-child(even) {
@@ -315,20 +309,21 @@ tr:hover {
   background: rgba(102, 126, 234, 0.08);
 }
 
-/* Ensure all tables have visible borders */
+/* Universal table border enforcement - Maximum priority */
 table:not(.tableblock table) {
-  border: 3px solid var(--table-border-color);
+  border: 4px solid var(--table-border-color) !important;
 }
 
 table:not(.tableblock table) th,
 table:not(.tableblock table) td {
-  border: 2px solid var(--table-border-color);
+  border: 2px solid var(--table-border-color) !important;
 }
 
-/* Enhanced table visibility for all AsciiDoc tables */
+/* Enhanced table visibility for all AsciiDoc tables - Ultimate enforcement */
 .tableblock table,
 table {
-  border: 3px solid var(--primary-color) !important;
+  border-collapse: collapse !important;
+  border: 4px solid var(--primary-color) !important;
 }
 
 .tableblock th,
@@ -342,7 +337,27 @@ td {
 /* Add subtle inner shadow for better cell definition */
 .tableblock td,
 td {
-  box-shadow: inset 0 0 0 1px rgba(160, 174, 192, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(160, 174, 192, 0.5) !important;
+}
+
+/* Specific overrides for all possible AsciiDoc table classes */
+.tableblock.frame-none table,
+.tableblock.frame-topbot table,
+.tableblock.frame-sides table,
+.tableblock.frame-all table,
+table.tableblock {
+  border: 4px solid var(--primary-color) !important;
+}
+
+.tableblock.grid-none th,
+.tableblock.grid-none td,
+.tableblock.grid-rows th,
+.tableblock.grid-rows td,
+.tableblock.grid-cols th,
+.tableblock.grid-cols td,
+.tableblock.grid-all th,
+.tableblock.grid-all td {
+  border: 2px solid var(--table-border-color) !important;
 }
 
 /* Beautiful Admonition Blocks */
