@@ -32,11 +32,11 @@ jobs:
               # ディレクトリ構造を保持したまま .adoc を .html に変更
               htmlfile="${file%.adoc}.html"
               echo "Converting $file to $htmlfile"
-              asciidoctor -a linkcss 
-                -a stylesdir=. 
-                -a stylesheet=custom-asciidoc.css 
-                -a docinfo=shared 
-                -a docinfodir=. 
+              asciidoctor -a linkcss \
+                -a stylesdir=. \
+                -a stylesheet=custom-asciidoc.css \
+                -a docinfo=shared \
+                -a docinfodir=. \
                 -o "$htmlfile" "$file"
             done
           else
