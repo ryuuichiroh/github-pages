@@ -20,12 +20,6 @@ jobs:
 
       - name: AsciiDoc to HTML conversion
         run: |
-          # CSSファイルをdocsディレクトリにコピー
-          cp .github/styles/custom-asciidoc.css docs/
-
-          # Docinfoファイルもコピー
-          cp .github/scripts/docinfo.html docs/
-
           # adocファイルが存在する場合のみ変換を実行
           if ls docs/**/*.adoc 1> /dev/null 2>&1; then
             for file in docs/**/*.adoc; do
