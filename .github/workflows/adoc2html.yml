@@ -40,46 +40,9 @@ jobs:
           # HTMLファイルにMermaidサポートを追加
           for htmlfile in docs/**/*.html; do
             if [ -f "$htmlfile" ]; then
-              # Mermaidスクリプトを別ファイルに作成してから挿入
-              cat > mermaid-script.js << 'EOF'
-              <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-              <script>
-              document.addEventListener("DOMContentLoaded", function() {
-                mermaid.initialize({startOnLoad: false, theme: "default"});
-                const blocks = document.querySelectorAll(".literalblock .content, .listingblock .content");
-                let index = 0;
-                blocks.forEach(block => {
-                  const pre = block.querySelector("pre");
-                  if (pre) {
-                    const content = pre.textContent.trim();
-                    if (content.startsWith("flowchart") || content.startsWith("graph") || 
-                        content.startsWith("sequenceDiagram") || content.startsWith("classDiagram") || 
-                        content.startsWith("stateDiagram") || content.startsWith("journey") || 
-                        content.startsWith("gantt") || content.startsWith("pie")) {
-                      const div = document.createElement("div");
-                      div.className = "mermaid";
-                      div.id = "mermaid-" + index;
-                      mermaid.render("diagram-" + index, content).then(result => {
-                        div.innerHTML = result.svg;
-                        block.parentNode.replaceChild(div, block);
-                      }).catch(() => {
-                        div.innerHTML = "<p>Mermaid rendering failed</p>";
-                        block.parentNode.replaceChild(div, block);
-                      });
-                      index++;
-                    }
-                  }
-                });
-              });
-              </script>
-              EOF
-              
-              # </head>の直前にスクリプトを挿入
-              sed -i '/<\/head>/r mermaid-script.js' "$htmlfile"
+              # 事前に用意されたMermaidスクリプトファイルを使用
+              sed -i '/<\/head>/r .github/scripts/mermaid-support.html' "$htmlfile"
               sed -i '/<\/head>/d' "$htmlfile"
-              
-              # 一時ファイルを削除
-              rm mermaid-script.js
             fi
           done
 
