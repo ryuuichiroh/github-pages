@@ -72,7 +72,6 @@ jobs:
                 });
               });
               </script>
-              </head>
               EOF
               
               # </head>の直前にスクリプトを挿入
