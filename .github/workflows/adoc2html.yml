@@ -37,12 +37,12 @@ jobs:
 
       - name: Add Mermaid support
         run: |
-          # PythonスクリプトでHTMLにMermaidサポートを追加
-          cat > add_mermaid.py << 'EOF'
-          import os
-          import re
-          
-          mermaid_script = '''<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+          # HTMLファイルにMermaidサポートを追加
+          for htmlfile in docs/**/*.html; do
+            if [ -f "$htmlfile" ]; then
+              # Mermaidスクリプトを別ファイルに作成してから挿入
+              cat > mermaid-script.js << 'EOF'
+          <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
           <script>
           document.addEventListener("DOMContentLoaded", function() {
             mermaid.initialize({startOnLoad: false, theme: "default"});
@@ -72,29 +72,15 @@ jobs:
             });
           });
           </script>
-          </head>'''
-          
-          for root, dirs, files in os.walk("docs"):
-              for file in files:
-                  if file.endswith(".html"):
-                      filepath = os.path.join(root, file)
-                      try:
-                          with open(filepath, 'r', encoding='utf-8') as f:
-                              content = f.read()
-                          
-                          # </head>をMermaidスクリプト付きに置換
-                          new_content = content.replace('</head>', mermaid_script)
-                          
-                          with open(filepath, 'w', encoding='utf-8') as f:
-                              f.write(new_content)
-                          
-                          print(f"Added Mermaid support to {filepath}")
-                      except Exception as e:
-                          print(f"Error processing {filepath}: {e}")
           EOF
-          
-          python3 add_mermaid.py
-          rm add_mermaid.py
+              
+              # </head>の直前にスクリプトを挿入
+              sed -i '/<\/head>/e cat mermaid-script.js' "$htmlfile"
+              
+              # 一時ファイルを削除
+              rm mermaid-script.js
+            fi
+          done
 
       - name: List files to be deployed
         run: |
