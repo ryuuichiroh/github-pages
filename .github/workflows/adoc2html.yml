@@ -13,11 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Asciidoctor and dependencies
+      - name: Install Asciidoctor
         run: |
           sudo apt-get update
-          sudo apt-get install -y asciidoctor ruby-dev
-          sudo gem install tilt
+          sudo apt-get install -y asciidoctor
 
       - name: Convert Asciidoc to HTML
         run: |
@@ -27,12 +26,24 @@ jobs:
               # ディレクトリ構造を保持したまま .adoc を .html に変更
               htmlfile="${file%.adoc}.html"
               echo "Converting $file to $htmlfile"
-              asciidoctor -T docs/templates \
+              asciidoctor -a linkcss \
+                -a stylesdir=https://cdnjs.cloudflare.com/ajax/libs/asciidoctor.js/2.2.5/css \
+                -a stylesheet=asciidoctor.css \
                 -o "$htmlfile" "$file"
             done
           else
             echo "No .adoc files found to convert"
           fi
+
+      - name: Add Mermaid support
+        run: |
+          # HTMLファイルにMermaidサポートを追加
+          for htmlfile in docs/**/*.html; do
+            if [ -f "$htmlfile" ]; then
+              # </head>の直前にMermaidスクリプトを挿入
+              sed -i 's|</head>|<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script><script>document.addEventListener("DOMContentLoaded",function(){mermaid.initialize({startOnLoad:false,theme:"default"});const blocks=document.querySelectorAll(".literalblock .content, .listingblock .content");let index=0;blocks.forEach(block=>{const pre=block.querySelector("pre");if(pre&&(pre.textContent.trim().startsWith("flowchart")||pre.textContent.trim().startsWith("graph")||pre.textContent.trim().startsWith("sequenceDiagram")||pre.textContent.trim().startsWith("classDiagram")||pre.textContent.trim().startsWith("stateDiagram")||pre.textContent.trim().startsWith("journey")||pre.textContent.trim().startsWith("gantt")||pre.textContent.trim().startsWith("pie"))){const div=document.createElement("div");div.className="mermaid";div.id=`mermaid-${index}`;mermaid.render(`diagram-${index}`,pre.textContent.trim()).then(result=>{div.innerHTML=result.svg;block.parentNode.replaceChild(div,block);}).catch(()=>{div.innerHTML="<p>Mermaid rendering failed</p>";block.parentNode.replaceChild(div,block);});index++;}});});</script></head>|' "$htmlfile"
+            fi
+          done
 
       - name: List files to be deployed
         run: |
