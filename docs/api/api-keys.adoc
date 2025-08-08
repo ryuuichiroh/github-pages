@@ -325,7 +325,7 @@ GET、POST、PUT、DELETE の各メソッドをサポートします。
 
 <<api-keys-issue-api-key>>と<<api-keys-issue-data-access-key>>で、設定するヘッダが異なります。
 
-[width="100%",cols="15%,85%",options="header",frame="all",grid="all"]
+[width="100%",cols="15%,85%",options="header",]
 |===
 |Name |Doc
 
@@ -347,7 +347,7 @@ POST の場合のリクエストボディは、required が `yes` の属性を�
 
 PUT の場合は、更新が必要な項目のみ設定します。更新可能な属性は `updatable` が `yes` のものです。
 
-[width="100%",cols="15%,20%,10%,10%,45%",options="header",frame="all",grid="all"]
+[width="100%",cols="15%,20%,10%,10%,45%",options="header",]
 |===
 |Name |Type |required |updatable |Doc
 
@@ -375,7 +375,7 @@ PUT の場合は、更新が必要な項目のみ設定します。更新可能�
 [[attribute-policies]]
 ==== policy
 
-[width="100%",cols="15%,20%,10%,10%,45%",options="header",frame="all",grid="all"]
+[width="100%",cols="15%,20%,10%,10%,45%",options="header",]
 |===
 |Name |Type |required |updatable |Doc
 
@@ -404,7 +404,7 @@ PUT の場合は、更新が必要な項目のみ設定します。更新可能�
 [[api-keys-attribute-resources]]
 ==== resource
 
-[width="100%",cols="15%,20%,10%,10%,45%",options="header",frame="all",grid="all"]
+[width="100%",cols="15%,20%,10%,10%,45%",options="header",]
 |===
 |Name |Type |required |updatable |Doc
 
@@ -428,7 +428,7 @@ wdto-api-key ヘッダに<<api-keys-issue-data-access-key>>をする場合の選
 
 === レスポンスのステータスコード
 
-[width="100%",cols="10%,20%,70%",options="header",frame="all",grid="all"]
+[width="100%",cols="10%,20%,70%",options="header",]
 |===
 |Status Code |Method |Doc
 
@@ -514,7 +514,7 @@ wdto-api-key ヘッダに<<api-keys-issue-data-access-key>>をする場合の選
 
 上記の API に対する共通の応答仕様は以下の通りです。
 
-[width="100%",cols="20%,80%",options="header",frame="all",grid="all"]
+[width="100%",cols="20%,80%",options="header",]
 |===
 |Status Code |Doc
 
@@ -537,7 +537,7 @@ API キーの customerId に紐づくリソース情報のみを返します。
 
 === GET /devices:id、/locations:id、/subscriptions:id、DELETE /devices:id、/locations:id、/subscriptions:id
 
-[width="100%",cols="20%,80%",options="header",frame="all",grid="all"]
+[width="100%",cols="20%,80%",options="header",]
 |===
 |Status Code |Doc
 
@@ -548,7 +548,7 @@ API キーの customerId に紐づくリソース情報のみを返します。
 
 === POST /devices、/locations
 
-[width="100%",cols="20%,80%",options="header",frame="all",grid="all"]
+[width="100%",cols="20%,80%",options="header",]
 |===
 |Status Code |Doc
 
