@@ -27,8 +27,8 @@ jobs:
               htmlfile="${file%.adoc}.html"
               echo "Converting $file to $htmlfile"
               asciidoctor -a linkcss \
-                -a stylesdir=https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css \
-                -a stylesheet=bootstrap.min.css \
+                -a stylesdir=.github/styles \
+                -a stylesheet=custom-asciidoc.css \
                 -a docinfo=shared \
                 -o "$htmlfile" "$file"
             done
@@ -36,13 +36,15 @@ jobs:
             echo "No .adoc files found to convert"
           fi
 
-      - name: Add Mermaid support
+      - name: Add Mermaid support and Modern Design
         run: |
-          # HTMLファイルにMermaidサポートを追加
+          # HTMLファイルにMermaidサポートとモダンデザインを追加
           for htmlfile in docs/**/*.html; do
             if [ -f "$htmlfile" ]; then
-              # 事前に用意されたMermaidスクリプトファイルを使用
+              # Mermaidサポートを追加
               sed -i '/<\/head>/r .github/scripts/mermaid-support.html' "$htmlfile"
+              # モダンラッパーを追加
+              sed -i '/<\/head>/r .github/scripts/modern-wrapper.html' "$htmlfile"
               sed -i '/<\/head>/d' "$htmlfile"
             fi
           done
