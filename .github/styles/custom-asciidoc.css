@@ -1,0 +1,237 @@
+/* Modern AsciiDoc Styling */
+:root {
+  --primary-color: #2563eb;
+  --secondary-color: #64748b;
+  --accent-color: #06b6d4;
+  --text-color: #1e293b;
+  --bg-color: #ffffff;
+  --border-color: #e2e8f0;
+  --code-bg: #f8fafc;
+  --warning-color: #f59e0b;
+  --info-color: #3b82f6;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+}
+
+/* Base styling */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  margin: 0;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+h1 {
+  font-size: 2.5rem;
+  border-bottom: 3px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.3rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: var(--secondary-color);
+}
+
+/* Paragraphs and text */
+p {
+  margin-bottom: 1rem;
+  text-align: justify;
+}
+
+/* Links */
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  border-bottom-color: var(--accent-color);
+  color: var(--primary-color);
+}
+
+/* Code blocks */
+.listingblock .content,
+.literalblock .content {
+  background-color: var(--code-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.listingblock .content pre,
+.literalblock .content pre {
+  margin: 0;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Inline code */
+code {
+  background-color: var(--code-bg);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9em;
+  border: 1px solid var(--border-color);
+}
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.5rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 600;
+}
+
+tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+tr:hover {
+  background-color: #f1f5f9;
+}
+
+/* Admonition blocks */
+.admonitionblock {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.admonitionblock.note {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-left-color: var(--info-color);
+}
+
+.admonitionblock.tip {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-left-color: var(--success-color);
+}
+
+.admonitionblock.important,
+.admonitionblock.warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  border-left-color: var(--warning-color);
+}
+
+.admonitionblock.caution {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-left-color: var(--danger-color);
+}
+
+/* Lists */
+ul, ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 4px solid var(--accent-color);
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  background-color: rgba(6, 182, 212, 0.05);
+  font-style: italic;
+  border-radius: 0 8px 8px 0;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 1rem 0;
+}
+
+/* Mermaid diagrams styling */
+.mermaid {
+  text-align: center;
+  margin: 2rem 0;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  table {
+    font-size: 0.9rem;
+  }
+  
+  th, td {
+    padding: 0.5rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    max-width: none;
+    padding: 0;
+    color: black;
+  }
+  
+  .mermaid {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}
