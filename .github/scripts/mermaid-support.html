@@ -16,11 +16,12 @@ document.addEventListener("DOMContentLoaded", function() {
       const text = content.textContent.trim();
       console.log("Found literal block:", text.substring(0, 50));
       
-      // Mermaidコードかどうかを判定
-      if (text.startsWith("flowchart") || text.startsWith("graph") || 
+      // Mermaidコードかどうかを判定（CSSや既に変換されたSVGは除外）
+      if ((text.startsWith("flowchart") || text.startsWith("graph") || 
           text.startsWith("sequenceDiagram") || text.startsWith("classDiagram") || 
           text.startsWith("stateDiagram") || text.startsWith("journey") || 
-          text.startsWith("gantt") || text.startsWith("pie")) {
+          text.startsWith("gantt") || text.startsWith("pie")) &&
+          !text.includes("#diagram-") && !text.includes("font-family")) {
         
         console.log("Converting to Mermaid:", text.substring(0, 50));
         
@@ -50,11 +51,12 @@ document.addEventListener("DOMContentLoaded", function() {
       const text = content.textContent.trim();
       console.log("Found listing block:", text.substring(0, 50));
       
-      // Mermaidコードかどうかを判定
-      if (text.startsWith("flowchart") || text.startsWith("graph") || 
+      // Mermaidコードかどうかを判定（CSSや既に変換されたSVGは除外）
+      if ((text.startsWith("flowchart") || text.startsWith("graph") || 
           text.startsWith("sequenceDiagram") || text.startsWith("classDiagram") || 
           text.startsWith("stateDiagram") || text.startsWith("journey") || 
-          text.startsWith("gantt") || text.startsWith("pie")) {
+          text.startsWith("gantt") || text.startsWith("pie")) &&
+          !text.includes("#diagram-") && !text.includes("font-family")) {
         
         console.log("Converting listing to Mermaid:", text.substring(0, 50));
         
@@ -76,12 +78,12 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
   
-  // 既存のmermaidクラスの要素も処理
+  // 既存のmermaidクラスの要素も処理（ただし、SVGや処理済みのものは除外）
   const mermaidElements = document.querySelectorAll('.mermaid');
   mermaidElements.forEach(element => {
-    if (!element.dataset.processed) {
+    if (!element.dataset.processed && !element.querySelector('svg')) {
       const text = element.textContent.trim();
-      if (text) {
+      if (text && !text.includes("#diagram-") && !text.includes("font-family")) {
         console.log("Processing existing mermaid element:", text.substring(0, 50));
         mermaid.render("existing-" + index, text).then(result => {
           element.innerHTML = result.svg;
