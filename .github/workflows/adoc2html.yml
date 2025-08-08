@@ -54,20 +54,6 @@ jobs:
         run: |
           echo "Files that will be deployed to GitHub Pages:"
           find docs -type f | sort
-          echo ""
-          echo "Checking for Mermaid support in HTML files:"
-          for htmlfile in docs/**/*.html; do
-            if [ -f "$htmlfile" ]; then
-              echo "=== $htmlfile ==="
-              echo "Has mermaid script:"
-              grep -c "mermaid" "$htmlfile" || echo "0"
-              echo "Literal blocks found:"
-              grep -c "literalblock" "$htmlfile" || echo "0"
-              echo "Sample content:"
-              head -20 "$htmlfile"
-              echo ""
-            fi
-          done
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3.0.1
