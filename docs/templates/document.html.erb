@@ -74,8 +74,8 @@
         securityLevel: 'loose'
       });
       
-      // [mermaid] ブロックを探して変換
-      const mermaidBlocks = document.querySelectorAll('.listingblock .content');
+      // literalblock と listingblock の両方を対象とする
+      const mermaidBlocks = document.querySelectorAll('.literalblock .content, .listingblock .content');
       console.log('Found blocks:', mermaidBlocks.length);
       
       let mermaidIndex = 0;
@@ -105,10 +105,11 @@
               .then(result => {
                 mermaidDiv.innerHTML = result.svg;
                 block.parentNode.replaceChild(mermaidDiv, block);
+                console.log('Successfully rendered Mermaid diagram:', mermaidIndex);
               })
               .catch(error => {
                 console.error('Mermaid rendering error:', error);
-                mermaidDiv.innerHTML = '<p style="color: red;">Mermaid diagram rendering failed</p>';
+                mermaidDiv.innerHTML = '<p style="color: red;">Mermaid diagram rendering failed: ' + error.message + '</p>';
                 block.parentNode.replaceChild(mermaidDiv, block);
               });
             
