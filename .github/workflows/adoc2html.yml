@@ -20,10 +20,6 @@ jobs:
 
       - name: Convert Asciidoc to HTML
         run: |
-          # CSSファイルをdocsディレクトリにコピー
-          mkdir -p docs/.github/styles
-          cp -r .github/styles/* docs/.github/styles/
-          
           # adocファイルが存在する場合のみ変換を実行
           if ls docs/**/*.adoc 1> /dev/null 2>&1; then
             for file in docs/**/*.adoc; do
@@ -31,8 +27,8 @@ jobs:
               htmlfile="${file%.adoc}.html"
               echo "Converting $file to $htmlfile"
               asciidoctor -a linkcss \
-                -a stylesdir=.github/styles \
-                -a stylesheet=custom-asciidoc.css \
+                -a stylesdir=https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css \
+                -a stylesheet=bootstrap.min.css \
                 -a docinfo=shared \
                 -o "$htmlfile" "$file"
             done
