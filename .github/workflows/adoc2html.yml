@@ -40,9 +40,18 @@ jobs:
               echo "Adding Mermaid support to $htmlfile"
               # Mermaidサポートスクリプトファイルの内容を</head>タグの直前に挿入
               if [ -f ".github/scripts/mermaid-support.html" ]; then
-                # </head>タグの直前にMermaidサポートを挿入
-                sed -i '/<\/head>/i\<!-- Mermaid Support -->' "$htmlfile"
-                sed -i '/<\/head>/r .github/scripts/mermaid-support.html' "$htmlfile"
+                # 一時ファイルを作成して、正しい順序で挿入
+                temp_file=$(mktemp)
+                # </head>より前の部分をコピー
+                sed '/<\/head>/,$d' "$htmlfile" > "$temp_file"
+                # コメントを追加
+                echo "<!-- Mermaid Support -->" >> "$temp_file"
+                # Mermaidスクリプトを追加
+                cat .github/scripts/mermaid-support.html >> "$temp_file"
+                # </head>以降の部分を追加
+                sed -n '/<\/head>/,$p' "$htmlfile" >> "$temp_file"
+                # 元ファイルを置き換え
+                mv "$temp_file" "$htmlfile"
                 echo "Mermaid support added to $htmlfile"
               else
                 echo "Mermaid support script not found"
